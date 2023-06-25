@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 var builder = new ConfigurationBuilder();
 BuildConfig(builder);
@@ -11,7 +12,12 @@ var config = builder.Build();
 Log.Logger = new LoggerConfiguration().
     ReadFrom.Configuration(config).
     Enrich.FromLogContext().
-    WriteTo.Console().
+    Enrich.WithMemoryUsage().
+    Enrich.WithThreadId().
+
+    // For basic output use 'WriteTo.Console()'.
+    // Fancy output format
+    WriteTo.Console(theme: AnsiConsoleTheme.Sixteen, outputTemplate: "{Timestamp:yyyy/MM/dd HH:mm} [{Level:u3}] (Thread: {ThreadId}) (Mem: {MemoryUsage}) {Message}{NewLine}{Exception}").
     CreateLogger();
 
 Log.Logger.Information("App starting");
